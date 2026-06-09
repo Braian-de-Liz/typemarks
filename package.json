@@ -1,0 +1,23 @@
+{
+  "name": "typemarks",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun build ./src/server.ts  --minify --target=bun --outfile dist/server.js",
+    "start": "bun run dist/server.js",
+    "bench": "bun test tests/bench.test.ts"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/autocannon": "^7.12.7",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "autocannon": "^8.0.0",
+    "fastify": "^5.8.5",
+    "schema-shield": "^1.0.5"
+  }
+}
