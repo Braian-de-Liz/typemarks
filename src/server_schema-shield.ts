@@ -1,7 +1,30 @@
 import fastify, {type  RouteShorthandOptions }  from "fastify";
+import { SchemaShield, ValidationError } from "schema-shield";
 
 const Fastify = fastify();
 
+const shield = new SchemaShield({ failFast: true });
+
+Fastify.setValidatorCompiler(({ schema, httpPart }) => {
+    const validation = shield.compile(schema);
+
+    return (data) => {
+        const result = validation(data);
+
+        if (result.valid) {
+            return { value: result.data };
+        } else {
+            const mensagem = result.error instanceof ValidationError ? `Erro de validação: ${result.error.message}` : `Falha de validação no campo: ${httpPart}`;
+
+            const error = new Error(mensagem);
+
+            (error as any).statusCode = 400;
+            (error as any).validationContext = httpPart;
+
+            return { error };
+        }
+    };
+});
 
 const schema: RouteShorthandOptions = {
     schema: {

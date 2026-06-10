@@ -5,7 +5,20 @@
   "scripts": {
     "build": "bun build ./src/server.ts  --minify --target=bun --outfile dist/server.js",
     "start": "bun run dist/server.js",
-    "bench": "bun test tests/bench.test.ts"
+    "bench": "bun test tests/bench.test.ts",
+    "bench:ajv": "bun test tests/bench-ajv.test.ts",
+    "bench:elysia": "bun test tests/bench-elysia.test.ts",
+    "bench:zod": "bun test tests/bench-zod.test.ts",
+    "bench:shield": "bun test tests/bench-schema-shield.test.ts",
+    
+    "build_server": "bun build ./src/server.ts --minify --target=bun --outfile dist/server-ajv.js",
+    "build_elysia": "bun build ./src/elysia.ts --minify --target=bun --outfile dist/server-elysia.js",
+    "build_zod": "bun build ./src/zod.ts --minify --target=bun --outfile dist/server-zod.js",
+    "build_sc": "bun build ./src/server_schema-shield.ts --minify --target=bun --outfile dist/server_schema-shield.js",
+
+    "start:ajv": "bun run dist/server-ajv.js",
+    "start:elysia": "bun run dist/server-elysia.js",
+    "start:zod": "bun run dist/server-zod.js"
   },
   "private": true,
   "devDependencies": {
@@ -17,7 +30,9 @@
   },
   "dependencies": {
     "autocannon": "^8.0.0",
+    "elysia": "^1.4.28",
     "fastify": "^5.8.5",
-    "schema-shield": "^1.0.5"
+    "schema-shield": "^1.0.5",
+    "zod": "^4.4.3"
   }
 }

@@ -66,5 +66,9 @@ Como o Schema-Shield elimina a geração de código dinâmico e foca em algoritm
 
 ---
 
-**Responsável Técnico:** Engenharia de Backend / Pesquisa & Desenvolvimento
+[validação_Fastify_vs_Elysia](md/Fastify_vs_Elysia.md)
+
+[validação_AJV_vs_Schema-Shield](md/AJV_vs_Schema-Shield.md)
+
+**Responsável Técnico:**  Braian de Liz da Silva / Pesquisa & Desenvolvimento
 **Data do Relatório:** 8 de junho de 2026
