@@ -1,59 +1,52 @@
-import { describe, test, expect, beforeAll, afterAll } from "vitest";
+import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 import autocannon from "autocannon";
-import Fastify, { type FastifyRequest, type FastifyReply } from "fastify";
+import Fastify from "fastify";
+import {
+  parse,
+  pipe,
+  string,
+  number,
+  integer,
+  minValue,
+  maxValue,
+  minLength,
+  maxLength,
+  uuid,
+  regex,
+  array,
+  strictObject,
+  picklist,
+} from "valibot";
 
-const schemaBody = {
-  type: "object",
-  required: ["projetoId", "timestamp", "configuracoes", "camadasAnalise", "tagsSociais"],
-  additionalProperties: false,
-  properties: {
-    projetoId: { type: "string", format: "uuid" },
-    timestamp: { type: "integer", minimum: 0 },
-    configuracoes: {
-      type: "object",
-      required: ["taxaAmostragem", "bitrate", "formato", "efeitosAtivos"],
-      additionalProperties: false,
-      properties: {
-        taxaAmostragem: { type: "integer", enum: [44100, 48000, 96000] },
-        bitrate: { type: "integer", minimum: 128, maximum: 320 },
-        formato: { type: "string", pattern: "^(mp3|wav|flac|ogg)$" },
-        efeitosAtivos: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 10 },
-      },
-    },
-    camadasAnalise: {
-      type: "array",
-      minItems: 1,
-      maxItems: 15,
-      items: {
-        type: "object",
-        required: ["id", "nomeTrilha", "volume", "delayOffset", "tagsInstrumentos", "metadadosFrequencia"],
-        additionalProperties: false,
-        properties: {
-          id: { type: "string", format: "uuid" },
-          nomeTrilha: { type: "string", minLength: 3, maxLength: 50 },
-          volume: { type: "number", minimum: 0, maximum: 1 },
-          delayOffset: { type: "number", minimum: -500, maximum: 500 },
-          tagsInstrumentos: { type: "array", items: { type: "string" }, maxItems: 5 },
-          metadadosFrequencia: {
-            type: "array",
-            maxItems: 20,
-            items: {
-              type: "object",
-              required: ["hz", "ganho", "q"],
-              additionalProperties: false,
-              properties: {
-                hz: { type: "number" },
-                ganho: { type: "number" },
-                q: { type: "number" },
-              },
-            },
-          },
-        },
-      },
-    },
-    tagsSociais: { type: "array", items: { type: "string" }, maxItems: 50 },
-  },
-};
+const MetadadosFrequenciaSchema = strictObject({
+  hz: number(),
+  ganho: number(),
+  q: number(),
+});
+
+const CamadaAnaliseSchema = strictObject({
+  id: pipe(string(), uuid()),
+  nomeTrilha: pipe(string(), minLength(3), maxLength(50)),
+  volume: pipe(number(), minValue(0), maxValue(1)),
+  delayOffset: pipe(number(), minValue(-500), maxValue(500)),
+  tagsInstrumentos: array(string(), [maxLength(5)]),
+  metadadosFrequencia: array(MetadadosFrequenciaSchema, [maxLength(20)]),
+});
+
+const ConfiguracoesSchema = strictObject({
+  taxaAmostragem: picklist([44100, 48000, 96000]),
+  bitrate: pipe(number(), integer(), minValue(128), maxValue(320)),
+  formato: pipe(string(), regex(/^(mp3|wav|flac|ogg)$/)),
+  efeitosAtivos: array(string(), [minLength(1), maxLength(10)]),
+});
+
+const PayloadSchema = strictObject({
+  projetoId: pipe(string(), uuid()),
+  timestamp: pipe(number(), integer(), minValue(0)),
+  configuracoes: ConfiguracoesSchema,
+  camadasAnalise: array(CamadaAnaliseSchema, [minLength(1), maxLength(15)]),
+  tagsSociais: array(string(), [maxLength(50)]),
+});
 
 const payloadValido = {
   projetoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
@@ -98,7 +91,8 @@ let port: number;
 
 beforeAll(async () => {
   app = Fastify();
-  app.post("/StronValid", { schema: { body: schemaBody } }, async (_req: FastifyRequest, reply: FastifyReply) => {
+  app.post("/StronValid", async (req: any, reply: any) => {
+    parse(PayloadSchema, req.body);
     return reply.send("hellor word");
   });
   await app.listen({ port: 0 });
@@ -109,7 +103,7 @@ afterAll(async () => {
   await app.close();
 });
 
-describe("Benchmark - Validação /StronValid", () => {
+describe("Benchmark Valibot - Validação /StronValid", () => {
   test(
     "POST /StronValid | 100 conexões, 10s",
     async () => {
@@ -127,7 +121,7 @@ describe("Benchmark - Validação /StronValid", () => {
       expect(resultado.timeouts).toBe(0);
 
       console.log("-".repeat(50));
-      console.log("  [StronValid] Resultados do benchmark");
+      console.log("  [Valibot] Resultados do benchmark");
       console.log("-".repeat(50));
       console.log(`  Requisições/Sec:    ${resultado.requests.average.toFixed(2)}`);
       console.log(`  Latência Média:     ${resultado.latency.average.toFixed(2)}ms`);
@@ -138,6 +132,6 @@ describe("Benchmark - Validação /StronValid", () => {
       console.log(`  Timeouts:           ${resultado.timeouts}`);
       console.log("-".repeat(50));
     },
-    30000,
+    60000,
   );
 });

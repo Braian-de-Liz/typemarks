@@ -1,59 +1,37 @@
-import { describe, test, expect, beforeAll, afterAll } from "vitest";
+import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 import autocannon from "autocannon";
-import Fastify, { type FastifyRequest, type FastifyReply } from "fastify";
+import Fastify from "fastify";
+import typia, { tags } from "typia";
 
-const schemaBody = {
-  type: "object",
-  required: ["projetoId", "timestamp", "configuracoes", "camadasAnalise", "tagsSociais"],
-  additionalProperties: false,
-  properties: {
-    projetoId: { type: "string", format: "uuid" },
-    timestamp: { type: "integer", minimum: 0 },
-    configuracoes: {
-      type: "object",
-      required: ["taxaAmostragem", "bitrate", "formato", "efeitosAtivos"],
-      additionalProperties: false,
-      properties: {
-        taxaAmostragem: { type: "integer", enum: [44100, 48000, 96000] },
-        bitrate: { type: "integer", minimum: 128, maximum: 320 },
-        formato: { type: "string", pattern: "^(mp3|wav|flac|ogg)$" },
-        efeitosAtivos: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 10 },
-      },
-    },
-    camadasAnalise: {
-      type: "array",
-      minItems: 1,
-      maxItems: 15,
-      items: {
-        type: "object",
-        required: ["id", "nomeTrilha", "volume", "delayOffset", "tagsInstrumentos", "metadadosFrequencia"],
-        additionalProperties: false,
-        properties: {
-          id: { type: "string", format: "uuid" },
-          nomeTrilha: { type: "string", minLength: 3, maxLength: 50 },
-          volume: { type: "number", minimum: 0, maximum: 1 },
-          delayOffset: { type: "number", minimum: -500, maximum: 500 },
-          tagsInstrumentos: { type: "array", items: { type: "string" }, maxItems: 5 },
-          metadadosFrequencia: {
-            type: "array",
-            maxItems: 20,
-            items: {
-              type: "object",
-              required: ["hz", "ganho", "q"],
-              additionalProperties: false,
-              properties: {
-                hz: { type: "number" },
-                ganho: { type: "number" },
-                q: { type: "number" },
-              },
-            },
-          },
-        },
-      },
-    },
-    tagsSociais: { type: "array", items: { type: "string" }, maxItems: 50 },
-  },
-};
+interface IConfiguracoes {
+  taxaAmostragem: 44100 | 48000 | 96000;
+  bitrate: number & tags.Minimum<128> & tags.Maximum<320>;
+  formato: string & tags.Pattern<"^(mp3|wav|flac|ogg)$">;
+  efeitosAtivos: Array<string & tags.MinLength<1>> & tags.MinItems<1> & tags.MaxItems<10>;
+}
+
+interface IMetadadosFrequencia {
+  hz: number;
+  ganho: number;
+  q: number;
+}
+
+interface ICamadaAnalise {
+  id: string & tags.Format<"uuid">;
+  nomeTrilha: string & tags.MinLength<3> & tags.MaxLength<50>;
+  volume: number & tags.Minimum<0> & tags.Maximum<1>;
+  delayOffset: number & tags.Minimum<-500> & tags.Maximum<500>;
+  tagsInstrumentos: Array<string> & tags.MaxItems<5>;
+  metadadosFrequencia: Array<IMetadadosFrequencia> & tags.MaxItems<20>;
+}
+
+interface IAudioPayload {
+  projetoId: string & tags.Format<"uuid">;
+  timestamp: number & tags.Minimum<0>;
+  configuracoes: IConfiguracoes;
+  camadasAnalise: Array<ICamadaAnalise> & tags.MinItems<1> & tags.MaxItems<15>;
+  tagsSociais: Array<string> & tags.MaxItems<50>;
+}
 
 const payloadValido = {
   projetoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
@@ -98,7 +76,8 @@ let port: number;
 
 beforeAll(async () => {
   app = Fastify();
-  app.post("/StronValid", { schema: { body: schemaBody } }, async (_req: FastifyRequest, reply: FastifyReply) => {
+  app.post("/StronValid", async (req: any, reply: any) => {
+    typia.assert<IAudioPayload>(req.body);
     return reply.send("hellor word");
   });
   await app.listen({ port: 0 });
@@ -109,7 +88,7 @@ afterAll(async () => {
   await app.close();
 });
 
-describe("Benchmark - Validação /StronValid", () => {
+describe("Benchmark Typia - Validação /StronValid", () => {
   test(
     "POST /StronValid | 100 conexões, 10s",
     async () => {
@@ -127,7 +106,7 @@ describe("Benchmark - Validação /StronValid", () => {
       expect(resultado.timeouts).toBe(0);
 
       console.log("-".repeat(50));
-      console.log("  [StronValid] Resultados do benchmark");
+      console.log("  [Typia] Resultados do benchmark");
       console.log("-".repeat(50));
       console.log(`  Requisições/Sec:    ${resultado.requests.average.toFixed(2)}`);
       console.log(`  Latência Média:     ${resultado.latency.average.toFixed(2)}ms`);
@@ -138,6 +117,6 @@ describe("Benchmark - Validação /StronValid", () => {
       console.log(`  Timeouts:           ${resultado.timeouts}`);
       console.log("-".repeat(50));
     },
-    30000,
+    60000,
   );
 });

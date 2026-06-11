@@ -10,12 +10,14 @@
     "bench:elysia": "bun test tests/bench-elysia.test.ts",
     "bench:zod": "bun test tests/bench-zod.test.ts",
     "bench:shield": "bun test tests/bench-schema-shield.test.ts",
-    
+    "bench:node": "vitest run tests/bench.test.ts",
+    "bench:typia": "bun test tests/bench-typia.test.ts",
+    "bench:yup": "bun test tests/bench-yup.test.ts",
+    "bench:valibot": "bun test tests/bench-valibot.test.ts",
     "build_server": "bun build ./src/server.ts --minify --target=bun --outfile dist/server-ajv.js",
     "build_elysia": "bun build ./src/elysia.ts --minify --target=bun --outfile dist/server-elysia.js",
     "build_zod": "bun build ./src/zod.ts --minify --target=bun --outfile dist/server-zod.js",
     "build_sc": "bun build ./src/server_schema-shield.ts --minify --target=bun --outfile dist/server_schema-shield.js",
-
     "start:ajv": "bun run dist/server-ajv.js",
     "start:elysia": "bun run dist/server-elysia.js",
     "start:zod": "bun run dist/server-zod.js"
@@ -23,16 +25,20 @@
   "private": true,
   "devDependencies": {
     "@types/autocannon": "^7.12.7",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "vitest": "^4.1.8"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "@typia/unplugin": "^12.1.1",
     "autocannon": "^8.0.0",
     "elysia": "^1.4.28",
     "fastify": "^5.8.5",
     "schema-shield": "^1.0.5",
+    "valibot": "^1.4.1",
+    "yup": "^1.7.1",
     "zod": "^4.4.3"
   }
 }

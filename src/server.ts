@@ -1,4 +1,4 @@
-import fastify, {type  RouteShorthandOptions }  from "fastify";
+import fastify, { type RouteShorthandOptions } from "fastify";
 
 const Fastify = fastify();
 
