@@ -18,7 +18,8 @@ Este relatório consolidado documenta os testes de carga realizados no subsistem
 | 8 | Node (V8) | Fastify | Schema-Shield | 14.500,80 | 6,40 ms | 14,20 ms | -44,0% |
 | 9 | Node (V8) | Fastify | Valibot | 14.114,88 | 6,58 ms | 14,20 ms | -45,5% |
 | 10 | Node (V8) | Fastify | Zod | 13.754,24 | 6,80 ms | 15,00 ms | -46,9% |
-| 11 | Node (V8) | Fastify | Yup | 5.974,26 | 16,35 ms | 31,00 ms | -76,9% |
+| 11 | Bun (JSC) | Fastify | Yup | 6.192,00 | 15,76 ms | 22,60 ms | -76,1% |
+| 12 | Node (V8) | Fastify | Yup | 5.974,26 | 16,35 ms | 31,00 ms | -76,9% |
 
 ---
 
@@ -149,14 +150,25 @@ Analisar o impacto de desempenho de diferentes combinações de frameworks backe
 | 5 | 20.541,20 | 4,36 ms | 9,00 ms | 2.629.273,60 |
 | **Média** | **20.379,76** | **4,42 ms** | **9,40 ms** | **2.608.609,28** |
 
+#### Cenário F: Fastify + Yup
+
+| Rodada | Req/s | Lat. Média | P99 | Throughput |
+|--------|-------|------------|-----|------------|
+| 1 | 6.152,00 | 15,88 ms | 22,00 ms | 787.456,00 |
+| 2 | 6.192,00 | 15,76 ms | 23,00 ms | 792.576,00 |
+| 3 | 6.202,00 | 15,71 ms | 22,00 ms | 793.856,00 |
+| 4 | 6.202,00 | 15,73 ms | 24,00 ms | 793.856,00 |
+| 5 | 6.212,00 | 15,72 ms | 22,00 ms | 795.136,00 |
+| **Média** | **6.192,00** | **15,76 ms** | **22,60 ms** | **792.576,00** |
+
 ### Análise Consolidada
 
-| Métrica | Elysia (TypeBox) | Fastify + AJV | **Fastify + Typia** | Fastify + Shield | Fastify + Zod |
+| Métrica | Elysia (TypeBox) | Fastify + AJV | **Fastify + Typia** | Fastify + Shield | Fastify + Zod | Fastify + Yup |
 |---------|-----------------|---------------|-------------------|------------------|---------------|
-| Throughput | **25.915,20** rps | 22.527,44 rps | 22.450,64 rps | 21.106,48 rps | 20.379,76 rps |
-| Latência Média | **3,45 ms** | 3,93 ms | **3,90 ms** | 4,23 ms | 4,42 ms |
-| Estabilidade P99 | **6,60 ms** | 8,60 ms | **8,40 ms** | 8,60 ms | 9,40 ms |
-| Vazão de Rede | **3,29 MB/s** | 2,88 MB/s | 2,87 MB/s | 2,70 MB/s | 2,61 MB/s |
+| Throughput | **25.915,20** rps | 22.527,44 rps | 22.450,64 rps | 21.106,48 rps | 20.379,76 rps | 6.192,00 rps |
+| Latência Média | **3,45 ms** | 3,93 ms | **3,90 ms** | 4,23 ms | 4,42 ms | 15,76 ms |
+| Estabilidade P99 | **6,60 ms** | 8,60 ms | **8,40 ms** | 8,60 ms | 9,40 ms | 22,60 ms |
+| Vazão de Rede | **3,29 MB/s** | 2,88 MB/s | 2,87 MB/s | 2,70 MB/s | 2,61 MB/s | 0,79 MB/s |
 
 #### Observações
 
@@ -164,7 +176,8 @@ Analisar o impacto de desempenho de diferentes combinações de frameworks backe
 - **Fastify + AJV** demonstrou maturidade de engenharia: mesmo rodando sob camada adaptativa fora do Node.js, a compilação JIT em funções planas garantiu o segundo lugar com latência média < 4ms.
 - **Fastify + Typia** alcançou paridade virtual com o AJV (~22.451 vs 22.527 req/s, diferença de ~0,3%), mesmo realizando a validação inline via `typia.assert()` dentro do handler da rota — sem utilizar o schema compiler otimizado do Fastify. A latência P99 ligeiramente menor (8,40 ms vs 8,60 ms) sugere maior previsibilidade do código gerado estaticamente pelo typia. Este resultado é particularmente relevante porque o typia não depende de `new Function` ou compilação JIT, operando via transformação em tempo de transpilação pura.
 - **Schema-Shield**, com validação estrutural interpretativa sem compilação dinâmica, posicionou-se no meio da tabela. Sua latência P99 emparelhou com o AJV (8,60 ms), mas o throughput ficou ~6% abaixo do AJV e ~6,4% abaixo do Typia.
-- **Zod** expôs o preço do parsing dinâmico sem compilação prévia: o `.safeParse()` caminha recursivamente pelo payload a cada requisição, resultando na posição mais baixa e na maior cauda de latência P99 (9,40 ms).
+- **Zod** expôs o preço do parsing dinâmico sem compilação prévia: o `.safeParse()` caminha recursivamente pelo payload a cada requisição, resultando na posição mais baixa entre os validadores estruturais e na maior cauda de latência P99 (9,40 ms).
+- **Yup** apresentou desempenho drasticamente inferior no Bun, com throughput de apenas 6.192 req/s — **70,4% abaixo do Zod** e latência média ~3,6× maior. O wrapping síncrono de schemas e a validação interpretativa sem compilação JIT são os principais fatores. No entanto, a latência P99 (22,60 ms) foi significativamente melhor que no Node.js (31,00 ms), indicando que o JSC do Bun gerencia melhor os picos de validação do Yup.
 
 ---
 
@@ -329,6 +342,7 @@ Avaliar o desempenho de todas as bibliotecas de validação (AJV, Zod, Yup, Vali
 | **Typia** | 22.450,64 | 14.755,28 | **+52,1%** | 3,90 ms | 6,26 ms | 8,40 ms | 14,80 ms |
 | **Schema-Shield** | 21.106,48 | 14.500,80 | **+45,5%** | 4,23 ms | 6,40 ms | 8,60 ms | 14,20 ms |
 | **Zod** | 20.379,76 | 13.754,24 | **+48,2%** | 4,42 ms | 6,80 ms | 9,40 ms | 15,00 ms |
+| **Yup** | 6.192,00 | 5.974,26 | **+3,6%** | 15,76 ms | 16,35 ms | 22,60 ms | 31,00 ms |
 
 #### Observações
 
@@ -362,8 +376,8 @@ O Elysia consagrou-se campeão absoluto dos benchmarks por abdicar de camadas de
 
 A expansão da matriz de testes para o Node.js (V8) revelou três conclusões importantes:
 
-1. **Bun é consistentemente ~45-52% mais rápido** que Node.js em todos os validadores testados, com diferença mais acentuada no Typia (+52,1%) e menor no Schema-Shield (+45,5%).
-2. **A ordenação de performance entre validadores se mantém idêntica** em ambos os runtimes: AJV > Typia > Schema-Shield > Zod, confirmando que as características intrínsecas de cada biblioteca (compilação JIT, transformação estática, parsing interpretativo) são determinantes independentemente do motor JavaScript.
+1. **Bun é consistentemente +45-52% mais rápido** que Node.js nos validadores compilados/JIT (AJV, Typia, Schema-Shield, Zod), mas a diferença é **marginal no Yup (+3,6%)**, confirmando que o gargalo do Yup está na arquitetura da biblioteca, não no motor JavaScript.
+2. **A ordenação de performance entre validadores se mantém idêntica** em ambos os runtimes: AJV > Typia > Schema-Shield > Zod > Yup, confirmando que as características intrínsecas de cada biblioteca (compilação JIT, transformação estática, parsing interpretativo) são determinantes independentemente do motor JavaScript.
 3. **Node.js apresenta curva de aquecimento JIT** em todos os cenários, com ganhos de +10-23% entre a primeira e última rodada, enquanto Bun opera em regime permanente desde o início — fator crítico para ambientes serverless com ciclos de vida curtos.
 
 ### Custo da Validação na Arquitetura
