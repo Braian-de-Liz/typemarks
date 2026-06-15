@@ -1,0 +1,120 @@
+import { describe, test, expect, beforeAll, afterAll } from "vitest";
+import autocannon from "autocannon";
+import Fastify from "fastify";
+import * as yup from "yup";
+
+const schema = yup.object({
+  projetoId: yup.string().uuid().required(),
+  timestamp: yup.number().integer().min(0).required(),
+  configuracoes: yup.object({
+    taxaAmostragem: yup.number().oneOf([44100, 48000, 96000]).required(),
+    bitrate: yup.number().integer().min(128).max(320).required(),
+    formato: yup.string().matches(/^(mp3|wav|flac|ogg)$/).required(),
+    efeitosAtivos: yup.array(yup.string().required()).min(1).max(10).required(),
+  }).noUnknown().required(),
+  camadasAnalise: yup.array(
+    yup.object({
+      id: yup.string().uuid().required(),
+      nomeTrilha: yup.string().min(3).max(50).required(),
+      volume: yup.number().min(0).max(1).required(),
+      delayOffset: yup.number().min(-500).max(500).required(),
+      tagsInstrumentos: yup.array(yup.string().required()).max(5).required(),
+      metadadosFrequencia: yup.array(
+        yup.object({
+          hz: yup.number().required(),
+          ganho: yup.number().required(),
+          q: yup.number().required(),
+        }).noUnknown().required(),
+      ).max(20).required(),
+    }).noUnknown().required(),
+  ).min(1).max(15).required(),
+  tagsSociais: yup.array(yup.string().required()).max(50).required(),
+}).noUnknown().strict();
+
+const payloadValido = {
+  projetoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+  timestamp: 1717872234,
+  configuracoes: {
+    taxaAmostragem: 48000,
+    bitrate: 320,
+    formato: "wav",
+    efeitosAtivos: ["reverb", "delay", "compressor", "limiter"],
+  },
+  camadasAnalise: [
+    {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      nomeTrilha: "Vocal Principal - Take 3",
+      volume: 0.85,
+      delayOffset: -12.5,
+      tagsInstrumentos: ["vocal", "lead"],
+      metadadosFrequencia: [
+        { hz: 60, ganho: -2.5, q: 1.4 },
+        { hz: 250, ganho: 1.2, q: 0.7 },
+        { hz: 1000, ganho: -0.5, q: 1.0 },
+        { hz: 5000, ganho: 3.0, q: 0.5 },
+      ],
+    },
+    {
+      id: "789e4567-e89b-12d3-a456-426614174011",
+      nomeTrilha: "Guitarra Base L",
+      volume: 0.7,
+      delayOffset: 4.0,
+      tagsInstrumentos: ["guitar", "electric", "rhythm"],
+      metadadosFrequencia: [
+        { hz: 80, ganho: -12.0, q: 2.0 },
+        { hz: 1200, ganho: 2.1, q: 1.2 },
+      ],
+    },
+  ],
+  tagsSociais: ["rock", "collaboration", "api-test", "bun-speed"],
+};
+
+let app: any;
+let port: number;
+
+beforeAll(async () => {
+  app = Fastify();
+  app.post("/StronValid", async (req: any, reply: any) => {
+    schema.validateSync(req.body, { strict: true });
+    return reply.send("hellor word");
+  });
+  await app.listen({ port: 0 });
+  port = app.server.address().port;
+});
+
+afterAll(async () => {
+  await app.close();
+});
+
+describe("Benchmark Node Yup - Validação /StronValid", () => {
+  test(
+    "POST /StronValid | 100 conexões, 10s",
+    async () => {
+      const resultado = await autocannon({
+        url: `http://localhost:${port}/StronValid`,
+        connections: 100,
+        duration: 10,
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payloadValido),
+      });
+
+      expect(resultado.non2xx).toBe(0);
+      expect(resultado.errors).toBe(0);
+      expect(resultado.timeouts).toBe(0);
+
+      console.log("-".repeat(50));
+      console.log("  [Node Yup] Resultados do benchmark");
+      console.log("-".repeat(50));
+      console.log(`  Requisições/Sec:    ${resultado.requests.average.toFixed(2)}`);
+      console.log(`  Latência Média:     ${resultado.latency.average.toFixed(2)}ms`);
+      console.log(`  Latência máx:       ${resultado.latency.max.toFixed(2)}ms`);
+      console.log(`  Latência P99:       ${(resultado.latency.p99 || 0).toFixed(2)}ms`);
+      console.log(`  Throughput (bytes): ${resultado.throughput.average.toFixed(2)}`);
+      console.log(`  Erros:              ${resultado.errors}`);
+      console.log(`  Timeouts:           ${resultado.timeouts}`);
+      console.log("-".repeat(50));
+    },
+    60000,
+  );
+});
