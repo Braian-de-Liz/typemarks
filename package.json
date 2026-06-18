@@ -3,10 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "bench:ajv": "bun test tests/bench-ajv.test.ts",
-    "bench:elysia": "bun test tests/bench-elysia.test.ts",
-    "bench:zod": "bun test tests/bench-zod.test.ts",
-    "bench:shield": "bun test tests/bench-schema-shield.test.ts",
+    "bench:ajv": "bun test tests/bench-ajv-bun.test.ts",
+    "bench:elysia": "bun test tests/bench-elysia-bun.test.ts",
+    "bench:zod": "bun test tests/bench-zod-bun.test.ts",
+    "bench:shield": "bun test tests/bench-schema-shield-bun.test.ts",
     "bench:node": "vitest run bench_ajv-node.test.ts",
     "bench:node:zod": "vitest run tests/bench-node-zod.test.ts",
     "bench:node:yup": "vitest run tests/bench-node-yup.test.ts",
@@ -14,10 +14,10 @@
     "bench:node:shield": "vitest run tests/bench-node-shield.test.ts",
     "bench:node:typia": "vitest run tests/bench-node-typia.test.ts",
     "bench:node:all": "vitest run tests/bench-node-*.test.ts",
-    "bench:typia": "bun test tests/bench-typia.test.ts",
-    "bench:yup": "bun test tests/bench-yup.test.ts",
-    "bench:valibot": "bun test tests/bench-valibot.test.ts",
-    "bench:bun:all": "bun test tests/*.test.ts"
+    "bench:typia": "bun test tests/bench-typia-bun.test.ts",
+    "bench:yup": "bun test tests/bench-yup-bun.test.ts",
+    "bench:valibot": "bun test tests/bench-valibot-bun.test.ts",
+    "bench:bun:all": "bun test tests/*-bun.test.ts"
   },
   "private": true,
   "devDependencies": {
