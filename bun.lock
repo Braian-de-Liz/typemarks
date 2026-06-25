@@ -5,10 +5,14 @@
     "": {
       "name": "typemarks",
       "dependencies": {
+        "@hono/ajv-validator": "^0.0.2",
+        "@hono/node-server": "^2.0.6",
         "@typia/unplugin": "^12.1.1",
+        "ajv-formats": "^3.0.1",
         "autocannon": "^8.0.0",
         "elysia": "^1.4.28",
         "fastify": "^5.8.5",
+        "hono": "^4.12.27",
         "schema-shield": "^1.0.5",
         "valibot": "^1.4.1",
         "yup": "^1.7.1",
@@ -50,6 +54,10 @@
     "@fastify/merge-json-schemas": ["@fastify/merge-json-schemas@0.2.1", "", { "dependencies": { "dequal": "^2.0.3" } }, "sha512-OA3KGBCy6KtIvLf8DINC5880o5iBlDX4SxzLQS8HorJAbqluzLRn80UXU0bxZn7UOFhFgpRJDasfwn9nG4FG4A=="],
 
     "@fastify/proxy-addr": ["@fastify/proxy-addr@5.1.0", "", { "dependencies": { "@fastify/forwarded": "^3.0.0", "ipaddr.js": "^2.1.0" } }, "sha512-INS+6gh91cLUjB+PVHfu1UqcB76Sqtpyp7bnL+FYojhjygvOPA9ctiD/JDKsyD9Xgu4hUhCSJBPig/w7duNajw=="],
+
+    "@hono/ajv-validator": ["@hono/ajv-validator@0.0.2", "", { "peerDependencies": { "ajv": ">=8.12.0", "hono": ">=3.9.0" } }, "sha512-UWzpv7aYfTc0gFXHb7Hg9Jdvgk8p5nHo3M/3T0Ok8wHZRLFG9ODbMSnMV2mjZvuPYdBE2x1mLfB014GVgcuuRw=="],
+
+    "@hono/node-server": ["@hono/node-server@2.0.6", "", { "peerDependencies": { "hono": "^4" } }, "sha512-7DeRlKG57JDBNZ5Qj2jwVdgwQy4b0tLubRLl3zCf91/rCf9i7p1V5FtW/yWibm1uUHE493ts9ZXH/7g/LQWl+g=="],
 
     "@inquirer/external-editor": ["@inquirer/external-editor@1.0.3", "", { "dependencies": { "chardet": "^2.1.1", "iconv-lite": "^0.7.0" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha512-RWbSrDiYmO4LbejWY7ttpxczuwQyZLBUyygsA9Nsv95hpzUWwnNTVQmAq3xuh7vNwCp07UTmE5i11XAEExx4RA=="],
 
@@ -342,6 +350,8 @@
     "hdr-histogram-js": ["hdr-histogram-js@3.0.1", "", { "dependencies": { "@assemblyscript/loader": "^0.19.21", "base64-js": "^1.2.0", "pako": "^1.0.3" } }, "sha512-l3GSdZL1Jr1C0kyb461tUjEdrRPZr8Qry7jByltf5JGrA0xvqOSrxRBfcrJqqV/AMEtqqhHhC6w8HW0gn76tRQ=="],
 
     "hdr-histogram-percentiles-obj": ["hdr-histogram-percentiles-obj@3.0.0", "", {}, "sha512-7kIufnBqdsBGcSZLPJwqHT3yhk1QTsSlFsVD3kx5ixH/AlgBs9yM1q6DPhXZ8f8gtdqgh7N7/5btRLpQsS2gHw=="],
+
+    "hono": ["hono@4.12.27", "", {}, "sha512-1yrb/+w6HWQJrUCLkJ2IF5jNIPvvFkblV5RNOYl6bV+OA6p9GLcMpHFFGTosSvHvcAUibuUukRqhlYI4z32C7Q=="],
 
     "http-parser-js": ["http-parser-js@0.5.10", "", {}, "sha512-Pysuw9XpUq5dVc/2SMHpuTY01RFl8fttgcyunjL7eEMhGM3cI4eOmiCycJDVCo/7O7ClfQD3SaI6ftDzqOXYMA=="],
 

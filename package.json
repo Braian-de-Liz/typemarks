@@ -17,6 +17,8 @@
     "bench:typia": "bun test tests/bench-typia-bun.test.ts",
     "bench:yup": "bun test tests/bench-yup-bun.test.ts",
     "bench:valibot": "bun test tests/bench-valibot-bun.test.ts",
+    "bench:hono": "bun test tests/bench-hono-ajv-bun.test.ts",
+    "bench:node:hono": "vitest run tests/bench-hono-ajv-node.test.ts",
     "bench:bun:all": "bun test tests/*-bun.test.ts"
   },
   "private": true,
@@ -29,10 +31,14 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@hono/ajv-validator": "^0.0.2",
+    "@hono/node-server": "^2.0.6",
     "@typia/unplugin": "^12.1.1",
+    "ajv-formats": "^3.0.1",
     "autocannon": "^8.0.0",
     "elysia": "^1.4.28",
     "fastify": "^5.8.5",
+    "hono": "^4.12.27",
     "schema-shield": "^1.0.5",
     "valibot": "^1.4.1",
     "yup": "^1.7.1",

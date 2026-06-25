@@ -2,24 +2,26 @@
 
 ## Sumário Executivo
 
-Este relatório consolidado documenta os testes de carga realizados no subsistema de validação de esquemas da API, avaliando **12 cenários distintos** que combinam diferentes runtimes (Node.js/Bun), frameworks (Fastify/Elysia) e bibliotecas de validação (AJV/Schema-Shield/Zod/TypeBox/Typia/Yup/Valibot). Todos os testes foram executados no mesmo hardware, com o mesmo payload JSON complexo, sob 100 conexões simultâneas durante 10 segundos por rodada.
+Este relatório consolidado documenta os testes de carga realizados no subsistema de validação de esquemas da API, avaliando **14 cenários distintos** que combinam diferentes runtimes (Node.js/Bun), frameworks (Fastify/Elysia/Hono) e bibliotecas de validação (AJV/Schema-Shield/Zod/TypeBox/Typia/Yup/Valibot). Todos os testes foram executados no mesmo hardware, com o mesmo payload JSON complexo, sob 100 conexões simultâneas durante 10 segundos por rodada.
 
 ### Tabela Mestra — Ranking Consolidado
 
 | # | Runtime | Framework | Validador | Req/s (Média) | Lat. Média | Lat. P99 | Δ vs Topo (Geral) |
 |---|---------|-----------|-----------|---------------|------------|----------|-------------------|
-| 1 | Bun (JSC) | Elysia | TypeBox | 25.915,20 | 3,45 ms | 6,60 ms | — (referência) |
-| 2 | Bun (JSC) | Fastify | AJV | 22.527,44 | 3,93 ms | 8,60 ms | -13,1% |
-| 3 | Bun (JSC) | Fastify | Typia | 22.450,64 | 3,90 ms | 8,40 ms | -13,4% |
-| 4 | Bun (JSC) | Fastify | Schema-Shield | 21.106,48 | 4,23 ms | 8,60 ms | -18,6% |
-| 5 | Bun (JSC) | Fastify | Zod | 20.379,76 | 4,42 ms | 9,40 ms | -21,4% |
-| 6 | Node (V8) | Fastify | AJV | 14.998,08 | 6,16 ms | 14,20 ms | -42,1% |
-| 7 | Node (V8) | Fastify | Typia | 14.755,28 | 6,26 ms | 14,80 ms | -43,1% |
-| 8 | Node (V8) | Fastify | Schema-Shield | 14.500,80 | 6,40 ms | 14,20 ms | -44,0% |
-| 9 | Node (V8) | Fastify | Valibot | 14.114,88 | 6,58 ms | 14,20 ms | -45,5% |
-| 10 | Node (V8) | Fastify | Zod | 13.754,24 | 6,80 ms | 15,00 ms | -46,9% |
-| 11 | Bun (JSC) | Fastify | Yup | 6.192,00 | 15,76 ms | 22,60 ms | -76,1% |
-| 12 | Node (V8) | Fastify | Yup | 5.974,26 | 16,35 ms | 31,00 ms | -76,9% |
+| 1 | Bun (JSC) | Hono | AJV | 30.496,00 | 2,69 ms | 5,00 ms | — (referência) |
+| 2 | Bun (JSC) | Elysia | TypeBox | 25.915,20 | 3,45 ms | 6,60 ms | -15,0% |
+| 3 | Bun (JSC) | Fastify | AJV | 22.527,44 | 3,93 ms | 8,60 ms | -26,1% |
+| 4 | Bun (JSC) | Fastify | Typia | 22.450,64 | 3,90 ms | 8,40 ms | -26,4% |
+| 5 | Bun (JSC) | Fastify | Schema-Shield | 21.106,48 | 4,23 ms | 8,60 ms | -30,8% |
+| 6 | Bun (JSC) | Fastify | Zod | 20.379,76 | 4,42 ms | 9,40 ms | -33,2% |
+| 7 | Node (V8) | Hono | AJV | 20.373,16 | 4,34 ms | 9,40 ms | -33,2% |
+| 8 | Node (V8) | Fastify | AJV | 14.998,08 | 6,16 ms | 14,20 ms | -50,8% |
+| 9 | Node (V8) | Fastify | Typia | 14.755,28 | 6,26 ms | 14,80 ms | -51,6% |
+| 10 | Node (V8) | Fastify | Schema-Shield | 14.500,80 | 6,40 ms | 14,20 ms | -52,4% |
+| 11 | Node (V8) | Fastify | Valibot | 14.114,88 | 6,58 ms | 14,20 ms | -53,7% |
+| 12 | Node (V8) | Fastify | Zod | 13.754,24 | 6,80 ms | 15,00 ms | -54,9% |
+| 13 | Bun (JSC) | Fastify | Yup | 6.192,00 | 15,76 ms | 22,60 ms | -79,7% |
+| 14 | Node (V8) | Fastify | Yup | 5.974,26 | 16,35 ms | 31,00 ms | -80,4% |
 
 ---
 
@@ -160,6 +162,17 @@ Analisar o impacto de desempenho de diferentes combinações de frameworks backe
 | 4 | 6.202,00 | 15,73 ms | 24,00 ms | 793.856,00 |
 | 5 | 6.212,00 | 15,72 ms | 22,00 ms | 795.136,00 |
 | **Média** | **6.192,00** | **15,76 ms** | **22,60 ms** | **792.576,00** |
+
+#### Cenário G: Hono + AJV (validação via middleware `ajvValidator`)
+
+| Rodada | Req/s | Lat. Média | P99 | Throughput |
+|--------|-------|------------|-----|------------|
+| 1 | 30.060,80 | 2,76 ms | 5,00 ms | 3.817.472,00 |
+| 2 | 30.752,00 | 2,65 ms | 5,00 ms | 3.904.716,80 |
+| 3 | 30.652,80 | 2,67 ms | 5,00 ms | 3.892.428,80 |
+| 4 | 30.832,00 | 2,65 ms | 5,00 ms | 3.915.161,60 |
+| 5 | 30.182,40 | 2,73 ms | 5,00 ms | 3.832.832,00 |
+| **Média** | **30.496,00** | **2,69 ms** | **5,00 ms** | **3.872.522,24** |
 
 ### Análise Consolidada
 
@@ -388,7 +401,7 @@ Considerando benchmarks de rota vazia (Hello World) onde o Bun atinge ~58.4k req
 
 1. **Perfilamento de memória (heap profiling):** monitorar o comportamento de alocação sob estresse contínuo de 60s para mensurar o impacto do GC em cada validador.
 2. **Simulação de gargalo misto:** adicionar atraso assíncrono artificial (I/O delay de 20ms) nas rotas para verificar se as diferenças percentuais se mantêm ou se diluem diante de espera de rede.
-3. ~~**Expansão da matriz de testes:** incluir validação com `@sinclair/typebox` puro (sem Elysia) e testes com `typia` integrado ao schema compiler do Fastify para avaliar o ganho potencial de performance.~~ ✅ **Concluído** — matriz expandida para Node.js com 6 validadores (AJV, Zod, Yup, Valibot, Schema-Shield e Typia).
+3. ~~**Expansão da matriz de testes:** incluir validação com `@sinclair/typebox` puro (sem Elysia) e testes com `typia` integrado ao schema compiler do Fastify para avaliar o ganho potencial de performance.~~ **Concluído** — matriz expandida para Node.js com 6 validadores (AJV, Zod, Yup, Valibot, Schema-Shield e Typia).
 
 ---
 
