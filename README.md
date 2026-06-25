@@ -2,26 +2,27 @@
 
 ## Sumário Executivo
 
-Este relatório consolidado documenta os testes de carga realizados no subsistema de validação de esquemas da API, avaliando **14 cenários distintos** que combinam diferentes runtimes (Node.js/Bun), frameworks (Fastify/Elysia/Hono) e bibliotecas de validação (AJV/Schema-Shield/Zod/TypeBox/Typia/Yup/Valibot). Todos os testes foram executados no mesmo hardware, com o mesmo payload JSON complexo, sob 100 conexões simultâneas durante 10 segundos por rodada.
+Este relatório consolidado documenta os testes de carga realizados no subsistema de validação de esquemas da API, avaliando **15 cenários distintos** que combinam diferentes runtimes (Node.js/Bun), frameworks (Fastify/Elysia/Hono) e bibliotecas de validação (AJV/Schema-Shield/Zod/TypeBox/Typia/Yup/Valibot). Todos os testes foram executados no mesmo hardware, com o mesmo payload JSON complexo, sob 100 conexões simultâneas durante 10 segundos por rodada.
 
 ### Tabela Mestra — Ranking Consolidado
 
 | # | Runtime | Framework | Validador | Req/s (Média) | Lat. Média | Lat. P99 | Δ vs Topo (Geral) |
 |---|---------|-----------|-----------|---------------|------------|----------|-------------------|
-| 1 | Bun (JSC) | Hono | AJV | 30.496,00 | 2,69 ms | 5,00 ms | — (referência) |
-| 2 | Bun (JSC) | Elysia | TypeBox | 25.915,20 | 3,45 ms | 6,60 ms | -15,0% |
-| 3 | Bun (JSC) | Fastify | AJV | 22.527,44 | 3,93 ms | 8,60 ms | -26,1% |
-| 4 | Bun (JSC) | Fastify | Typia | 22.450,64 | 3,90 ms | 8,40 ms | -26,4% |
-| 5 | Bun (JSC) | Fastify | Schema-Shield | 21.106,48 | 4,23 ms | 8,60 ms | -30,8% |
-| 6 | Bun (JSC) | Fastify | Zod | 20.379,76 | 4,42 ms | 9,40 ms | -33,2% |
-| 7 | Node (V8) | Hono | AJV | 20.373,16 | 4,34 ms | 9,40 ms | -33,2% |
-| 8 | Node (V8) | Fastify | AJV | 14.998,08 | 6,16 ms | 14,20 ms | -50,8% |
-| 9 | Node (V8) | Fastify | Typia | 14.755,28 | 6,26 ms | 14,80 ms | -51,6% |
-| 10 | Node (V8) | Fastify | Schema-Shield | 14.500,80 | 6,40 ms | 14,20 ms | -52,4% |
-| 11 | Node (V8) | Fastify | Valibot | 14.114,88 | 6,58 ms | 14,20 ms | -53,7% |
-| 12 | Node (V8) | Fastify | Zod | 13.754,24 | 6,80 ms | 15,00 ms | -54,9% |
-| 13 | Bun (JSC) | Fastify | Yup | 6.192,00 | 15,76 ms | 22,60 ms | -79,7% |
-| 14 | Node (V8) | Fastify | Yup | 5.974,26 | 16,35 ms | 31,00 ms | -80,4% |
+| 1 | Bun (JSC) | Hono | AJV | 28.534,08 | 2,94 ms | 5,60 ms | — (referência) |
+| 2 | Bun (JSC) | Elysia | TypeBox | 25.915,20 | 3,45 ms | 6,60 ms | -9,2% |
+| 3 | Bun (JSC) | Hono | Schema-Shield | 25.021,12 | 3,61 ms | 7,20 ms | -12,3% |
+| 4 | Bun (JSC) | Fastify | AJV | 22.527,44 | 3,93 ms | 8,60 ms | -21,1% |
+| 5 | Bun (JSC) | Fastify | Typia | 22.450,64 | 3,90 ms | 8,40 ms | -21,3% |
+| 6 | Bun (JSC) | Fastify | Schema-Shield | 21.106,48 | 4,23 ms | 8,60 ms | -26,0% |
+| 7 | Bun (JSC) | Fastify | Zod | 20.379,76 | 4,42 ms | 9,40 ms | -28,6% |
+| 8 | Node (V8) | Hono | AJV | 20.373,16 | 4,34 ms | 9,40 ms | -28,6% |
+| 9 | Node (V8) | Fastify | AJV | 14.998,08 | 6,16 ms | 14,20 ms | -47,4% |
+| 10 | Node (V8) | Fastify | Typia | 14.755,28 | 6,26 ms | 14,80 ms | -48,3% |
+| 11 | Node (V8) | Fastify | Schema-Shield | 14.500,80 | 6,40 ms | 14,20 ms | -49,2% |
+| 12 | Node (V8) | Fastify | Valibot | 14.114,88 | 6,58 ms | 14,20 ms | -50,5% |
+| 13 | Node (V8) | Fastify | Zod | 13.754,24 | 6,80 ms | 15,00 ms | -51,8% |
+| 14 | Bun (JSC) | Fastify | Yup | 6.192,00 | 15,76 ms | 22,60 ms | -78,3% |
+| 15 | Node (V8) | Fastify | Yup | 5.974,26 | 16,35 ms | 31,00 ms | -79,1% |
 
 ---
 
@@ -167,30 +168,43 @@ Analisar o impacto de desempenho de diferentes combinações de frameworks backe
 
 | Rodada | Req/s | Lat. Média | P99 | Throughput |
 |--------|-------|------------|-----|------------|
-| 1 | 30.060,80 | 2,76 ms | 5,00 ms | 3.817.472,00 |
-| 2 | 30.752,00 | 2,65 ms | 5,00 ms | 3.904.716,80 |
-| 3 | 30.652,80 | 2,67 ms | 5,00 ms | 3.892.428,80 |
-| 4 | 30.832,00 | 2,65 ms | 5,00 ms | 3.915.161,60 |
-| 5 | 30.182,40 | 2,73 ms | 5,00 ms | 3.832.832,00 |
-| **Média** | **30.496,00** | **2,69 ms** | **5,00 ms** | **3.872.522,24** |
+| 1 | 28.609,60 | 2,92 ms | 5,00 ms | 3.633.561,60 |
+| 2 | 28.681,60 | 2,88 ms | 6,00 ms | 3.642.163,20 |
+| 3 | 28.252,80 | 3,02 ms | 6,00 ms | 3.587.481,60 |
+| 4 | 28.312,00 | 2,98 ms | 6,00 ms | 3.595.059,20 |
+| 5 | 28.814,40 | 2,88 ms | 5,00 ms | 3.658.752,00 |
+| **Média** | **28.534,08** | **2,94 ms** | **5,60 ms** | **3.623.403,52** |
+
+#### Cenário H: Hono + Schema-Shield (validação via middleware `validator`)
+
+| Rodada | Req/s | Lat. Média | P99 | Throughput |
+|--------|-------|------------|-----|------------|
+| 1 | 25.691,20 | 3,47 ms | 6,00 ms | 3.262.259,20 |
+| 2 | 25.929,60 | 3,46 ms | 6,00 ms | 3.292.979,20 |
+| 3 | 21.670,40 | 4,17 ms | 11,00 ms | 2.752.102,40 |
+| 4 | 25.432,00 | 3,54 ms | 7,00 ms | 3.229.696,00 |
+| 5 | 26.382,40 | 3,43 ms | 6,00 ms | 3.350.323,20 |
+| **Média** | **25.021,12** | **3,61 ms** | **7,20 ms** | **3.177.472,00** |
 
 ### Análise Consolidada
 
-| Métrica | Elysia (TypeBox) | Fastify + AJV | **Fastify + Typia** | Fastify + Shield | Fastify + Zod | Fastify + Yup |
-|---------|-----------------|---------------|-------------------|------------------|---------------|
-| Throughput | **25.915,20** rps | 22.527,44 rps | 22.450,64 rps | 21.106,48 rps | 20.379,76 rps | 6.192,00 rps |
-| Latência Média | **3,45 ms** | 3,93 ms | **3,90 ms** | 4,23 ms | 4,42 ms | 15,76 ms |
-| Estabilidade P99 | **6,60 ms** | 8,60 ms | **8,40 ms** | 8,60 ms | 9,40 ms | 22,60 ms |
-| Vazão de Rede | **3,29 MB/s** | 2,88 MB/s | 2,87 MB/s | 2,70 MB/s | 2,61 MB/s | 0,79 MB/s |
+| Métrica | **Hono + AJV** | Elysia (TypeBox) | **Hono + Shield** | Fastify + AJV | Fastify + Typia | Fastify + Shield | Fastify + Zod | Fastify + Yup |
+|---------|---------------|-----------------|-------------------|---------------|-----------------|------------------|---------------|---------------|
+| Throughput | **28.534,08** rps | 25.915,20 rps | **25.021,12** rps | 22.527,44 rps | 22.450,64 rps | 21.106,48 rps | 20.379,76 rps | 6.192,00 rps |
+| Latência Média | **2,94 ms** | 3,45 ms | **3,61 ms** | 3,93 ms | 3,90 ms | 4,23 ms | 4,42 ms | 15,76 ms |
+| Estabilidade P99 | **5,60 ms** | 6,60 ms | **7,20 ms** | 8,60 ms | 8,40 ms | 8,60 ms | 9,40 ms | 22,60 ms |
+| Vazão de Rede | **3,62 MB/s** | 3,29 MB/s | **3,18 MB/s** | 2,88 MB/s | 2,87 MB/s | 2,70 MB/s | 2,61 MB/s | 0,79 MB/s |
 
 #### Observações
 
-- **Elysia + TypeBox** consagrou-se campeão absoluto ao quebrar a barreira de 25k req/s. A sinergia nativa com `Bun.serve()` e a pré-compilação estática de esquemas eliminam a sobrecarga estrutural de camadas adaptativas.
-- **Fastify + AJV** demonstrou maturidade de engenharia: mesmo rodando sob camada adaptativa fora do Node.js, a compilação JIT em funções planas garantiu o segundo lugar com latência média < 4ms.
-- **Fastify + Typia** alcançou paridade virtual com o AJV (~22.451 vs 22.527 req/s, diferença de ~0,3%), mesmo realizando a validação inline via `typia.assert()` dentro do handler da rota — sem utilizar o schema compiler otimizado do Fastify. A latência P99 ligeiramente menor (8,40 ms vs 8,60 ms) sugere maior previsibilidade do código gerado estaticamente pelo typia. Este resultado é particularmente relevante porque o typia não depende de `new Function` ou compilação JIT, operando via transformação em tempo de transpilação pura.
-- **Schema-Shield**, com validação estrutural interpretativa sem compilação dinâmica, posicionou-se no meio da tabela. Sua latência P99 emparelhou com o AJV (8,60 ms), mas o throughput ficou ~6% abaixo do AJV e ~6,4% abaixo do Typia.
-- **Zod** expôs o preço do parsing dinâmico sem compilação prévia: o `.safeParse()` caminha recursivamente pelo payload a cada requisição, resultando na posição mais baixa entre os validadores estruturais e na maior cauda de latência P99 (9,40 ms).
-- **Yup** apresentou desempenho drasticamente inferior no Bun, com throughput de apenas 6.192 req/s — **70,4% abaixo do Zod** e latência média ~3,6× maior. O wrapping síncrono de schemas e a validação interpretativa sem compilação JIT são os principais fatores. No entanto, a latência P99 (22,60 ms) foi significativamente melhor que no Node.js (31,00 ms), indicando que o JSC do Bun gerencia melhor os picos de validação do Yup.
+- **Hono + AJV** sagrou-se campeão absoluto com 28.534 req/s, superando o Elysia+TypeBox em +10,1% e o Fastify+AJV em +26,7%. A combinação da arquitetura ultraleve do Hono com a compilação JIT do AJV demonstra a sinergia máxima entre framework minimalista e motor de validação maduro.
+- **Hono + Schema-Shield** alcançou 25.021 req/s — terceiro lugar geral — e superou o Fastify+AJV em +11,1%. Este resultado é particularmente significativo: o Hono consegue extrair mais desempenho do Schema-Shield que o Fastify extrai do AJV, evidenciando que a leveza do framework pode compensar a abordagem interpretativa do validador.
+- **Elysia + TypeBox** manteve o segundo lugar com 25.915 req/s, demonstrando a eficiência da pré-compilação estática de esquemas via TypeBox acoplada ao `Bun.serve()`.
+- **Fastify + AJV** consolidou-se como referência para aplicações maiores com 22.527 req/s, latência média < 4ms e ecossistema robusto de plugins.
+- **Fastify + Typia** alcançou paridade virtual com o AJV (~22.451 vs 22.527 req/s, diferença de ~0,3%), validando a eficácia da transformação estática em tempo de compilação como alternativa ao JIT dinâmico.
+- **Schema-Shield**, com validação estrutural interpretativa sem compilação dinâmica, posicionou-se consistentemente no meio da tabela — tanto no Hono quanto no Fastify — mas com performance significativamente superior quando acoplado ao Hono.
+- **Zod** expôs o preço do parsing dinâmico sem compilação prévia: o `.safeParse()` caminha recursivamente pelo payload a cada requisição, resultando na maior cauda de latência P99 entre os validadores estruturais (9,40 ms).
+- **Yup** apresentou desempenho drasticamente inferior, com throughput de apenas ~6.000 req/s — **~79% abaixo do topo** e latência média ~5,4× maior que o último colocado entre os validadores estruturais.
 
 ---
 
@@ -376,14 +390,48 @@ Assim como observado na Parte I, o Node.js apresentou aquecimento JIT em todos o
 
 ### Stack Recomendada
 
-Com base nos dados empíricos consolidados, a stack de maior performance para o subsistema de validação é:
+Com base nos dados empíricos consolidados, as recomendações variam conforme o tipo de aplicação:
+
+#### Microserviços de Alto Desempenho / Edge Functions
 
 > **Runtime:** Bun (JavaScriptCore)
-> **Framework:** Elysia
-> **Validador:** TypeBox (validação nativa)
-> **Benchmark:** 25.915 req/s | Latência Média 3,45 ms | P99 6,60 ms
+> **Framework:** Hono
+> **Validador:** AJV (compilação JIT)
+> **Benchmark:** 28.534 req/s | Latência Média 2,94 ms | P99 5,60 ms
 
-O Elysia consagrou-se campeão absoluto dos benchmarks por abdicar de camadas de compatibilidade do Node.js, acoplando-se diretamente ao `Bun.serve()` com pré-compilação estática de esquemas via TypeBox. O Fastify+AJV (segundo lugar) e o Fastify+Typia (terceiro lugar, com diferença marginal de ~0,3%) demonstram que o ecossistema Bun amadureceu a ponto de executar tanto código gerado dinamicamente (`new Function`) quanto código transformado estaticamente (typia) com desempenho superior ao Node.js nativo.
+O Hono consagrou-se campeão absoluto ao atingir 28.534 req/s, superando o Elysia+TypeBox em +10,1% e o Fastify+AJV em +26,7%. Sua arquitetura ultraleve, acoplamento nativo ao `Bun.serve()` e semântica de middleware minimalista tornam-no ideal para microserviços focados em throughput bruto, funções serverless e ambientes edge (Cloudflare Workers, Deno Deploy). A simplicidade do Hono elimina overhead de roteamento complexo, permitindo que o motor de validação (AJV) opere com o mínimo de interferência possível. No entanto, seu ecossistema de plugins é relativamente novo e menos maduro que alternativas estabelecidas.
+
+#### Aplicações Maiores / Monolitos / APIs Corporativas
+
+> **Runtime:** Bun (JavaScriptCore) ou Node.js (V8)
+> **Framework:** Fastify
+> **Validador:** AJV (compilação JIT) ou Typia (transformação estática)
+> **Benchmark (Bun):** 22.527 req/s | Latência Média 3,93 ms | P99 8,60 ms
+> **Benchmark (Node):** 14.998 req/s | Latência Média 6,16 ms | P99 14,20 ms
+
+O Fastify permanece como a escolha estratégica para aplicações de maior porte por três razões fundamentais: **ecossistema maduro** (plugins nativos de autenticação JWT, CORS, Swagger/OpenAPI, rate limiting, formdata e upload), **schema compiler integrado** com suporte nativo a JSON Schema e transformação automática de TypeScript para validação, e **comunidade robusta** com décadas de produção em ambientes corporativos. Embora o throughput bruto seja ~21% inferior ao Hono, a diferença dilui-se em aplicações reais onde o gargalo está na I/O de banco de dados, chamadas externas e lógica de negócio — cenários onde a maturidade e a confiabilidade do framework superam microsegundos de latência de roteamento. Para equipes que buscam o melhor dos dois mundos, o Fastify+Bun com AJV ou Typia oferece performance superior ao Node.js nativo (+50% em throughput) mantendo toda a infraestrutura de plugins existente.
+
+#### Por que Fastify acima do Elysia?
+
+Embora o Elysia+TypeBox tenha alcançado 25.915 req/s (3º lugar geral), o Fastify é recomendado como framework principal para aplicações maiores porque:
+
+1. **Ecossistema de plugins:** O Fastify possui um catálogo extenso e maduro de plugins oficiais e da comunidade — `@fastify/auth`, `@fastify/cors`, `@fastify/swagger`, `@fastify/rate-limit`, `@fastify/multipart`, `@fastify/helmet`, entre dezenas outros. O Elysia, por mais rápido que seja, ainda possui um ecossistema significativamente menor, exigindo frequentemente a implementação manual de funcionalidades que o Fastify oferece prontas.
+
+2. **Flexibilidade de runtime:** O Fastify roda tanto em Bun quanto em Node.js com desempenho competitivo, permitindo migração incremental entre runtimes sem reescrita de código. O Elysia é acoplado exclusivamente ao Bun, criando uma dependência de vendor lock-in que pode ser arriscada em ambientes empresariais com restrições de infraestrutura.
+
+3. **Schema compiler nativo:** O Fastify integra nativamente JSON Schema com suporte a `@fastify/type-provider-typebox` e `@fastify/type-provider-zod`, permitindo validação de entrada e serialização de saída via o mesmo esquema — funcionalidade que o Elysia não replica com a mesma maturidade.
+
+4. **Maturidade de produção:** Com milhões de downloads semanais e uso em grandes empresas, o Fastify possui uma base de testes, documentação e resolução de bugs significativamente mais robusta. O ecossistema Elysia, embora promissor e em rápida evolução, ainda não atingiu o mesmo nível de adoção corporativa.
+
+5. **DevEx e documentação:** O Fastify possui documentação extensiva, guias de migração do Express, e uma comunidade ativa com suporte comunitário consolidado — fatores decisivos para equipes que precisam onboarding rápido e resolução imediata de problemas.
+
+#### Resumo Visual
+
+| Cenário | Stack Recomendada | Req/s | Justificativa |
+|---------|-------------------|-------|---------------|
+| Microserviços / Edge / Serverless | Hono + AJV (Bun) | 28.534 | Máximo throughput, latência mínima, footprint reduzido |
+| APIs / Monolitos / Backend Corporativo | Fastify + AJV (Bun) | 22.527 | Ecossistema rico, maturidade de produção, plugins maduros |
+| APIs / Monolitos (Node.js legado) | Fastify + AJV (Node) | 14.998 | Compatibilidade com ecossistema Node existente |
 
 ### Bun vs Node.js: Comparativo Geral
 

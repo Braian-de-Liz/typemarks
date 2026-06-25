@@ -18,6 +18,7 @@
     "bench:yup": "bun test tests/bench-yup-bun.test.ts",
     "bench:valibot": "bun test tests/bench-valibot-bun.test.ts",
     "bench:hono": "bun test tests/bench-hono-ajv-bun.test.ts",
+    "bench:hono:shield": "bun test tests/bench-hono-shield-bun.test.ts",
     "bench:node:hono": "vitest run tests/bench-hono-ajv-node.test.ts",
     "bench:bun:all": "bun test tests/*-bun.test.ts"
   },
